@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>☕ Home Barista Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Cormorant+Garamond:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fcfaf7;
+      --panel: #ffffff;
+      --text: #2f241c;
+      --muted: #8d7a6b;
+      --accent: #8a5a2b;
+      --accent-light: #f4ece4;
+      --line: rgba(138, 90, 43, 0.1);
+      --energy-bg: #2f241c;
+      --energy-accent: #c08a4b;
+    }
+
+    body.turbo-on {
+      --bg: var(--energy-bg);
+      --panel: #3d2f25;
+      --text: #fcfaf7;
+      --muted: #b5a397;
+      --line: rgba(255, 255, 255, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background-color: var(--bg);
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text);
+      line-height: 1.5;
+      transition: background-color 0.4s ease, color 0.4s ease;
+      padding-bottom: 60px;
+    }
+
+    header { padding: 2.5rem 1.2rem 1rem; text-align: center; }
+
+    .app-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .app-logo em { color: var(--accent); font-style: italic; }
+    body.turbo-on .app-logo em { color: var(--energy-accent); }
+
+    .cat-nav {
+      display: flex; justify-content: center; gap: 8px;
+      padding: 0 1.2rem 1.5rem; overflow-x: auto; scrollbar-width: none;
+    }
+    .cat-nav::-webkit-scrollbar { display: none; }
+
+    .cat-btn {
+      padding: 10px 18px; border-radius: 25px; border: 1px solid var(--line);
+      background: var(--panel); font-size: 0.8rem; font-weight: 700;
+      color: var(--muted); white-space: nowrap; transition: all 0.3s ease;
+    }
+    .cat-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    body.turbo-on .cat-btn.active { background: var(--energy-accent); border-color: var(--energy-accent); }
+
+    .turbo-container {
+      display: flex; justify-content: center; align-items: center;
+      gap: 12px; margin-bottom: 1.5rem;
+    }
+    .turbo-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+    .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc; transition: .4s; border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px;
+      background-color: white; transition: .4s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--energy-accent); }
+    input:checked + .slider:before { transform: translateX(24px); }
+
+    .inventory-drawer {
+      margin: 0 1.2rem 1.5rem; border: 1px solid var(--line);
+      border-radius: 18px; background: var(--panel); overflow: hidden;
+    }
+    .inventory-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .inventory-header span { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--accent); }
+    body.turbo-on .inventory-header span { color: var(--energy-accent); }
+    .inventory-content { display: none; padding: 16px; border-top: 1px solid var(--line); }
+    .inventory-content.open { display: block; }
+
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill {
+      padding: 8px 12px; border-radius: 10px; background: var(--accent-light);
+      font-size: 0.75rem; font-weight: 600; color: var(--accent);
+    }
+    body.turbo-on .pill { background: #4d3c30; color: #fcfaf7; }
+    .pill.on { background: var(--accent) !important; color: white !important; }
+
+    .menu-container { padding: 0 1.2rem; }
+    .drink-card {
+      background: var(--panel); border-radius: 20px; margin-bottom: 1rem;
+      border: 1px solid var(--line); overflow: hidden;
+    }
+    .card-trigger { padding: 1.2rem; display: flex; justify-content: space-between; align-items: center; }
+    .drink-name { font-weight: 700; font-size: 1.05rem; }
+    .card-meta { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+    
+    .drink-details { display: none; padding: 0 1.2rem 1.2rem; border-top: 1px solid var(--line); }
+    .drink-details.open { display: block; background: rgba(0,0,0,0.015); }
+
+    .step-item { margin-top: 1rem; display: flex; gap: 0.8rem; }
+    .step-num {
+      width: 22px; height: 22px; background: var(--accent); color: white;
+      border-radius: 6px; font-size: 0.7rem; display: flex;
+      align-items: center; justify-content: center; flex-shrink: 0; font-weight: 800;
+    }
+    body.turbo-on .step-num { background: var(--energy-accent); }
+    .step-text { font-size: 0.9rem; }
+
+    .tip-box {
+      margin-top: 1rem; padding: 10px; border-radius: 10px;
+      background: rgba(138, 90, 43, 0.05); border-left: 3px solid var(--accent);
+      font-size: 0.8rem; font-style: italic; color: var(--muted);
+    }
+    body.turbo-on .tip-box { background: rgba(192, 138, 75, 0.1); border-color: var(--energy-accent); color: #fff; }
+
+    .turbo-instruction {
+      display: none; background: rgba(192, 138, 75, 0.15);
+      border-left: 3px solid var(--energy-accent); padding: 10px;
+      margin-top: 12px; font-size: 0.85rem; font-weight: 700; color: var(--energy-accent);
+    }
+    body.turbo-on .turbo-instruction { display: block; }
+  </style>
+</head>
+<body id="body">
+
+  <header>
+    <div class="app-logo">Barista <em>Daily</em></div>
+  </header>
+
+  <nav class="cat-nav" id="filters">
+    <button class="cat-btn active" data-f="all">All Recipes</button>
+    <button class="cat-btn" data-f="coffee">Coffee</button>
+    <button class="cat-btn" data-f="spirited">Spirited</button>
+  </nav>
+
+  <div class="turbo-container">
+    <span class="turbo-label">Turbo Boost</span>
+    <label class="switch">
+      <input type="checkbox" id="turboToggle" onchange="toggleTurbo()">
+      <span class="slider"></span>
+    </label>
+    <span id="energy-icon" style="opacity:0.3; font-size: 1.2rem;">🪫</span>
+  </div>
+
+  <section class="inventory-drawer">
+    <div class="inventory-header" onclick="toggleInventory()">
+      <span>Inventory Check</span>
+      <span id="inv-icon">＋</span>
+    </div>
+    <div class="inventory-content" id="inventory-body">
+      <div class="pills" id="pills">
+        <span class="pill" data-i="espresso">Espresso</span>
+        <span class="pill" data-i="oat-milk">Oat Milk</span>
+        <span class="pill" data-i="white-choc">White Choc</span>
+        <span class="pill" data-i="caramel">Caramel</span>
+        <span class="pill" data-i="vanilla">Vanilla</span>
+        <span class="pill" data-i="cold-foam">Cold Foam</span>
+        <span class="pill" data-i="whip">Whip</span>
+        <span class="pill" data-i="vodka">Vodka</span>
+        <span class="pill" data-i="kahlua">Kahlúa</span>
+        <span class="pill" data-i="hennessy">Hennessy</span>
+        <span class="pill" data-i="ginger-beer">Ginger Beer</span>
+        <span class="pill" data-i="lemon">Lemon</span>
+        <span class="pill" data-i="beans">Beans</span>
+      </div>
+    </div>
+  </section>
+
+  <main class="menu-container" id="menu"></main>
+
+  <script>
+    const drinks = [
+      { id: 1, name: "White Choc Caramel Oat Latte", cat: "coffee", type: "Hot", steps: ["Base: 2oz Specialty brew + 2 tsp white choc + 1 tsp caramel.","Finish: Fill with 4-5oz steamed oat milk. Top with whip."], tip: "Stir the white chocolate immediately while the coffee is piping hot to avoid clumps." },
+      { id: 2, name: "Salted Caramel White Mocha", cat: "coffee", type: "Iced", steps: ["Base: 2oz espresso + 1 tbsp white choc + 1 tsp caramel.","Finish: Ice, 3oz oat milk, then top with sweet cream cold foam."], tip: "1 Tbsp equals 3 teaspoons. Use the larger measurement here for a richer iced profile." },
+      { id: 3, name: '"Cafe Boutique" Macchiato', cat: "coffee", type: "Iced", steps: ["Base: 2 tsp caramel + 4oz oat milk + ice.","Finish: Slowly pour 2oz espresso over the top for layers. Add foam."], tip: "To get the perfect layer, pour the espresso over the back of a spoon." },
+      { id: 4, name: "Iced Vanilla White Mocha", cat: "coffee", type: "Iced", steps: ["Base: 2oz espresso + 2 tsp white choc + 1 tsp vanilla.","Finish: Add ice, 3oz oat milk, and top with cold foam."], tip: "Vanilla smooths out the white mocha sauce; stir thoroughly before adding ice." },
+      { id: 5, name: 'Vanilla Caramel "Cloud" Latte', cat: "coffee", type: "Hot", steps: ["Base: 2oz espresso + 1 tsp vanilla + 1 tsp caramel.","Finish: Froth 4oz oat milk until very airy. Top with whip & crosshatch."], tip: "Froth the milk for at least 45 seconds to get that 'Cloud' airy texture." },
+      { id: 6, name: "Double Vanilla Shaken Espresso", cat: "coffee", type: "Iced", steps: ["Base: Shake 3oz espresso + 1 tbsp vanilla + ice (15s).","Finish: Pour into glass, top with 2oz oat milk and cold foam."], tip: "Shaking creates micro-foam from the oils in the Cafe Bustelo for a creamy finish." },
+      { id: 7, name: "Durham Velvet", cat: "coffee", type: "Iced", steps: ["Base: 2oz espresso + 1 tsp vanilla + 1 tsp caramel.","Finish: Ice, 3oz oat milk, spoon thick cold foam and caramel drizzle."], tip: "Use a honeycomb pattern for the drizzle; it slowly sinks to create gold swirls." },
+      { id: 8, name: "The Midnight Mocha", cat: "spirited", type: "Hot", steps: ["Mix: 1oz Hennessy, 2oz hot coffee, 1 tbsp white choc.","Finish: Top with steamed oat milk and whipped cream."], tip: "Hennessy adds a toasted, nutty note that pairs perfectly with white chocolate." },
+      { id: 9, name: "Kahlúa Cloud Latte", cat: "spirited", type: "Hot", steps: ["Mix: 1oz Kahlúa, 2oz espresso, 1 tsp vanilla.","Finish: Fill remainder with very foamy oat milk."], tip: "Kahlúa is quite sweet; the vanilla adds aroma without needing extra sugar." },
+      { id: 10, name: "Espresso Martini", cat: "spirited", type: "Shaken", steps: ["Cool 2oz brew. Shake 2oz coffee, 1.5oz Vodka, 0.5oz Kahlúa, 1 tsp vanilla, pinch salt.","Pour & Garnish: Add 3 whole beans to the foam."], tip: "A tiny pinch of salt cuts the coffee's bitterness and makes the foam pop." },
+      { id: 11, name: "The Hen", cat: "spirited", type: "Boutique", steps: ["Brew 2oz espresso over 1 tbsp white choc.","Spirit: 1oz Hennessy + light ice. Top with 2oz oat milk and cinnamon."], tip: "Adding cinnamon on top elevates this to a liquid tiramisu flavor profile." },
+      { id: 12, name: "NC Gold Fashioned", cat: "spirited", type: "Stirred", steps: ["Mix: 2 tsp caramel, 1 tsp vanilla, splash water.","Build: 2oz Hennessy. Stir 20s. Add large ice and orange peel."], tip: "Stir gently for 20 seconds to properly integrate the syrups with the cognac." }
+    ];
+
+    let activeF = 'all';
+    let haveIngs = new Set();
+    let openId = null;
+
+    function render() {
+      const menu = document.getElementById('menu');
+      const filtered = drinks.filter(d => activeF === 'all' || d.cat === activeF);
+
+      menu.innerHTML = filtered.map(d => `
+        <div class="drink-card" onclick="toggle(${d.id})">
+          <div class="card-trigger">
+            <div>
+              <div class="drink-name">${d.name}</div>
+              <div class="card-meta">${d.type}</div>
+            </div>
+            <div style="font-weight:800; color:var(--accent)">${openId === d.id ? '−' : '＋'}</div>
+          </div>
+          <div class="drink-details ${openId === d.id ? 'open' : ''}">
+            ${d.steps.map((s, i) => `<div class="step-item"><div class="step-num">${i+1}</div><div class="step-text">${s}</div></div>`).join('')}
+            <div class="tip-box"><strong>Barista Tip:</strong> ${d.tip}</div>
+            <div class="turbo-instruction">🚀 RED EYE BOOST: Add 1 extra 2oz Ninja Specialty shot to the base for maximum energy.</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggle(id) { openId = openId === id ? null : id; render(); }
+    function toggleTurbo() {
+      const isTurbo = document.getElementById('turboToggle').checked;
+      document.getElementById('body').classList.toggle('turbo-on', isTurbo);
+      document.getElementById('energy-icon').textContent = isTurbo ? '🔋' : '🪫';
+      document.getElementById('energy-icon').style.opacity = isTurbo ? '1' : '0.3';
+    }
+    function toggleInventory() {
+      const body = document.getElementById('inventory-body');
+      const icon = document.getElementById('inv-icon');
+      body.classList.toggle('open');
+      icon.textContent = body.classList.contains('open') ? '−' : '＋';
+    }
+    document.getElementById('filters').addEventListener('click', e => {
+      const btn = e.target.closest('.cat-btn');
+      if (!btn) return;
+      activeF = btn.dataset.f;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    });
+    document.getElementById('pills').addEventListener('click', e => {
+      if (!e.target.classList.contains('pill')) return;
+      const i = e.target.dataset.i;
+      haveIngs.has(i) ? haveIngs.delete(i) : haveIngs.add(i);
+      e.target.classList.toggle('on');
+    });
+    render();
+  </script>
+</body>
+</html>
